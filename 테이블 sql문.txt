@@ -1,0 +1,203 @@
+CREATE TABLE `member` (
+	`member_id` VARCHAR(50) NOT NULL COLLATE 'euckr_korean_ci',
+	`password` VARCHAR(50) NOT NULL COLLATE 'euckr_korean_ci',
+	`name` VARCHAR(100) NOT NULL COLLATE 'euckr_korean_ci',
+	`student_id` VARCHAR(50) NOT NULL DEFAULT '' COLLATE 'euckr_korean_ci',
+	`gender` ENUM('남','여') NOT NULL COLLATE 'euckr_korean_ci',
+	`department` CHAR(20) NOT NULL COLLATE 'euckr_korean_ci',
+	`phone_number` VARCHAR(15) NOT NULL COLLATE 'euckr_korean_ci',
+	`member_role` ENUM('회장','임원','일반회원') NOT NULL DEFAULT '일반회원' COLLATE 'euckr_korean_ci',
+	`admission_fee` VARCHAR(50) NOT NULL DEFAULT '5000' COLLATE 'euckr_korean_ci',
+	`penalty` INT NOT NULL DEFAULT '0',
+	`member_profile` MEDIUMBLOB NULL DEFAULT NULL,
+	PRIMARY KEY (`member_id`) USING BTREE,
+	UNIQUE INDEX `phone` (`student_id`) USING BTREE,
+	UNIQUE INDEX `phone_number` (`phone_number`) USING BTREE
+)
+COLLATE='euckr_korean_ci'
+ENGINE=InnoDB
+;
+
+
+CREATE TABLE `manager` (
+	`manager_id` VARCHAR(50) NOT NULL COLLATE 'euckr_korean_ci',
+	`manager_password` VARCHAR(255) NOT NULL COLLATE 'euckr_korean_ci',
+	`manager_name` VARCHAR(50) NOT NULL COLLATE 'euckr_korean_ci',
+	`manager_profile` MEDIUMBLOB NULL DEFAULT NULL,
+	PRIMARY KEY (`manager_id`) USING BTREE
+)
+COLLATE='euckr_korean_ci'
+ENGINE=InnoDB
+;
+
+
+CREATE TABLE `game` (
+	`game_id` VARCHAR(255) NOT NULL COLLATE 'euckr_korean_ci',
+	`game_description` TEXT NOT NULL COLLATE 'euckr_korean_ci',
+	`max_member` INT NOT NULL DEFAULT '0',
+	`difficulty_level` ENUM('Easy','Normal','Hard') NOT NULL COLLATE 'euckr_korean_ci',
+	`game_image` MEDIUMBLOB NULL DEFAULT NULL,
+	`category` VARCHAR(100) NOT NULL COLLATE 'euckr_korean_ci',
+	`game_way` TEXT NULL DEFAULT NULL COLLATE 'euckr_korean_ci',
+	`ranking_points` INT NULL DEFAULT NULL,
+	PRIMARY KEY (`game_id`) USING BTREE
+)
+COLLATE='euckr_korean_ci'
+ENGINE=InnoDB
+;
+
+
+CREATE TABLE `game_rental` (
+	`rental_id` INT NOT NULL AUTO_INCREMENT,
+	`rental_date` DATE NOT NULL,
+	`return_date` DATE NULL DEFAULT NULL,
+	`rental_status` ENUM('대여중','반납완료') NULL DEFAULT '반납완료' COLLATE 'euckr_korean_ci',
+	`member_id` VARCHAR(50) NOT NULL COLLATE 'euckr_korean_ci',
+	`game_id` VARCHAR(255) NOT NULL COLLATE 'euckr_korean_ci',
+	PRIMARY KEY (`rental_id`) USING BTREE,
+	INDEX `member_id` (`member_id`) USING BTREE,
+	INDEX `game_id` (`game_id`) USING BTREE,
+	CONSTRAINT `game_rental_ibfk_1` FOREIGN KEY (`member_id`) REFERENCES `member` (`member_id`) ON UPDATE CASCADE ON DELETE CASCADE,
+	CONSTRAINT `game_rental_ibfk_2` FOREIGN KEY (`game_id`) REFERENCES `game` (`game_id`) ON UPDATE CASCADE ON DELETE CASCADE
+)
+COLLATE='euckr_korean_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=22
+;
+
+
+CREATE TABLE `board` (
+	`board_id` INT NOT NULL AUTO_INCREMENT,
+	`board_title` VARCHAR(255) NOT NULL COLLATE 'euckr_korean_ci',
+	`board_content` TEXT NOT NULL COLLATE 'euckr_korean_ci',
+	`created_date` TIMESTAMP NULL DEFAULT (now()),
+	`member_id` VARCHAR(50) NULL DEFAULT NULL COLLATE 'euckr_korean_ci',
+	`manager_id` VARCHAR(50) NULL DEFAULT NULL COLLATE 'euckr_korean_ci',
+	PRIMARY KEY (`board_id`) USING BTREE,
+	INDEX `member_id` (`member_id`) USING BTREE,
+	INDEX `manager_id` (`manager_id`) USING BTREE
+)
+COLLATE='euckr_korean_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=21
+;
+
+
+CREATE TABLE `comment` (
+	`comment_id` INT NOT NULL AUTO_INCREMENT,
+	`comment_content` TEXT NOT NULL COLLATE 'euckr_korean_ci',
+	`created_date` DATETIME NULL DEFAULT (now()),
+	`board_id` INT NOT NULL,
+	PRIMARY KEY (`comment_id`) USING BTREE,
+	INDEX `board_id` (`board_id`) USING BTREE,
+	CONSTRAINT `comment_ibfk_2` FOREIGN KEY (`board_id`) REFERENCES `board` (`board_id`) ON UPDATE CASCADE ON DELETE CASCADE
+)
+COLLATE='euckr_korean_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=9
+;
+
+
+CREATE TABLE `deposit` (
+	`deposit_id` INT NOT NULL AUTO_INCREMENT,
+	`deposit_amount` INT NOT NULL,
+	`deposit_date` TIMESTAMP NOT NULL DEFAULT (now()),
+	`deposit_note` VARCHAR(255) NULL DEFAULT NULL COLLATE 'euckr_korean_ci',
+	`member_id` VARCHAR(50) NULL DEFAULT NULL COLLATE 'euckr_korean_ci',
+	PRIMARY KEY (`deposit_id`) USING BTREE,
+	INDEX `member_id` (`member_id`) USING BTREE,
+	CONSTRAINT `deposit_ibfk_1` FOREIGN KEY (`member_id`) REFERENCES `member` (`member_id`) ON UPDATE CASCADE ON DELETE SET NULL
+)
+COLLATE='euckr_korean_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=30
+;
+
+
+CREATE TABLE `expenditure` (
+	`expenditure_id` INT NOT NULL AUTO_INCREMENT,
+	`expenditure_amount` INT NOT NULL,
+	`expenditure_date` TIMESTAMP NOT NULL DEFAULT (now()),
+	`expenditure_note` VARCHAR(255) NULL DEFAULT NULL COLLATE 'euckr_korean_ci',
+	PRIMARY KEY (`expenditure_id`) USING BTREE
+)
+COLLATE='euckr_korean_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=21
+;
+
+
+CREATE TABLE `notice` (
+	`notice_id` INT NOT NULL AUTO_INCREMENT,
+	`notice_title` VARCHAR(60) NOT NULL COLLATE 'euckr_korean_ci',
+	`notice_content` TEXT NULL DEFAULT NULL COLLATE 'euckr_korean_ci',
+	`created_at` TIMESTAMP NULL DEFAULT (now()),
+	`manager_id` VARCHAR(50) NOT NULL COLLATE 'euckr_korean_ci',
+	PRIMARY KEY (`notice_id`) USING BTREE,
+	INDEX `manager_id` (`manager_id`) USING BTREE
+)
+COLLATE='euckr_korean_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=18
+;
+
+
+CREATE TABLE `tblpolllist` (
+	`poll_id` INT NOT NULL AUTO_INCREMENT,
+	`question` TEXT NOT NULL COLLATE 'utf8mb4_general_ci',
+	`sdate` DATE NULL DEFAULT NULL,
+	`edate` DATE NULL DEFAULT NULL,
+	`created_at` TIMESTAMP NULL DEFAULT (now()),
+	PRIMARY KEY (`poll_id`) USING BTREE
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=52
+;
+
+
+CREATE TABLE `tblpollitem` (
+	`itemlist_num` INT NOT NULL AUTO_INCREMENT,
+	`item` VARCHAR(50) NOT NULL DEFAULT '0' COLLATE 'euckr_korean_ci',
+	`poll_id` INT NULL DEFAULT NULL,
+	`vote_count` INT NULL DEFAULT '0',
+	PRIMARY KEY (`itemlist_num`) USING BTREE,
+	INDEX `poll_id` (`poll_id`) USING BTREE,
+	CONSTRAINT `fk_poll_id` FOREIGN KEY (`poll_id`) REFERENCES `tblpolllist` (`poll_id`) ON UPDATE CASCADE ON DELETE CASCADE
+)
+COLLATE='euckr_korean_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=135
+;
+
+
+CREATE TABLE `tblpolluser` (
+	`member_id` VARCHAR(50) NOT NULL COLLATE 'euckr_korean_ci',
+	`poll_id` INT NOT NULL,
+	`itemlist_num` INT NULL DEFAULT NULL,
+	PRIMARY KEY (`member_id`, `poll_id`) USING BTREE,
+	INDEX `fk_poll_id_user` (`poll_id`) USING BTREE,
+	INDEX `fk_itemlist_num` (`itemlist_num`) USING BTREE,
+	CONSTRAINT `fk_itemlist_num` FOREIGN KEY (`itemlist_num`) REFERENCES `tblpollitem` (`itemlist_num`) ON UPDATE NO ACTION ON DELETE CASCADE,
+	CONSTRAINT `fk_member_id` FOREIGN KEY (`member_id`) REFERENCES `member` (`member_id`) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT `fk_poll_id_user` FOREIGN KEY (`poll_id`) REFERENCES `tblpolllist` (`poll_id`) ON UPDATE NO ACTION ON DELETE CASCADE
+)
+COLLATE='euckr_korean_ci'
+ENGINE=InnoDB
+;
+
+
+CREATE TABLE `user_notifications` (
+	`notice_id` INT NOT NULL,
+	`member_id` VARCHAR(50) NOT NULL COLLATE 'euckr_korean_ci',
+	`is_read` TINYINT(1) NULL DEFAULT '0',
+	PRIMARY KEY (`notice_id`, `member_id`) USING BTREE,
+	INDEX `member_id` (`member_id`) USING BTREE,
+	CONSTRAINT `user_notifications_ibfk_1` FOREIGN KEY (`notice_id`) REFERENCES `notice` (`notice_id`) ON UPDATE NO ACTION ON DELETE CASCADE,
+	CONSTRAINT `user_notifications_ibfk_2` FOREIGN KEY (`member_id`) REFERENCES `member` (`member_id`) ON UPDATE NO ACTION ON DELETE CASCADE
+)
+COLLATE='euckr_korean_ci'
+ENGINE=InnoDB
+;
+
+
